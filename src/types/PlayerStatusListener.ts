@@ -1,0 +1,1 @@
+export type PlayerProgressListener = (ms: number) => void

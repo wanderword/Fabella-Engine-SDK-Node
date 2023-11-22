@@ -1,0 +1,1 @@
+export type PlayerDurationListener = (ms: number) => void
