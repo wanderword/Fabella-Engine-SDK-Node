@@ -10,6 +10,6 @@ deploy_job:
   - apt-get update -qy
   - apt-get install -y git
   - git remote add github https://$GITHUB_TOKEN@github.com/$GITHUB_REPO.git
-  - git push github $CI_COMMIT_REF_NAME:main
+  - git push github main
   only:
     - main  # Adjust the branch as needed
