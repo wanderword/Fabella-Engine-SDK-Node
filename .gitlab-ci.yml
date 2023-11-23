@@ -9,6 +9,7 @@ deploy_job:
   script:
   - apt-get update -qy
   - apt-get install -y git
+  - git checkout -b main
   - git remote add github https://$GITHUB_TOKEN@github.com/$GITHUB_REPO.git
   - git push github main
   only:
