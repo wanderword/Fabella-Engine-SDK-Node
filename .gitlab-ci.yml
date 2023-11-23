@@ -1,0 +1,14 @@
+stages:
+  - deploy
+
+variables:
+  GITHUB_REPO: "wanderword/Fabella-Engine-SDK-Node"
+  GITHUB_TOKEN: $GITHUB_TOKEN  # GITHUB_TOKEN should be added as a CI/CD secret variable
+
+deploy_job:
+  stage: deploy
+  script:
+    - git remote add github https://${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git
+    - git push github $CI_COMMIT_REF_NAME:main
+  only:
+    - main  # Adjust the branch as needed
