@@ -2,22 +2,31 @@
   "name": "fabella-engine-api-sdk",
   "version": "0.1.0",
   "private": true,
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "build": "tsc"
   },
   "dependencies": {
     "axios": "^1.6.2",
     "core-js": "^3.8.3"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.6",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^8.0.3",
+    "jsdom": "^22.1.0",
     "prettier": "^2.4.1",
     "typescript": "~4.5.5"
   },
