@@ -27,6 +27,6 @@ jobs:
           fi
           echo "Setting package version to $VERSION"
           npm version $VERSION --no-git-tag-version
-      - run: yarn npm publish
+      - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
