@@ -1,0 +1,23 @@
+name: Publish Package to npmjs
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@wanderword' 
+      - run: yarn
+      - name: Update package.json version
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "Setting package version to $TAG_NAME"
+          npm version $TAG_NAME --no-git-tag-version
+      - run: yarn npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
