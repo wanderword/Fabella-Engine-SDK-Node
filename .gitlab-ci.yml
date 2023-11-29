@@ -13,4 +13,4 @@ deploy_job:
   - git remote add github https://$GITHUB_TOKEN@github.com/$GITHUB_REPO.git
   - git push github main
   only:
-    - main  # Adjust the branch as needed
+    - main
