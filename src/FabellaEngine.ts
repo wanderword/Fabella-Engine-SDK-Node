@@ -1,16 +1,19 @@
 import axios from "axios";
-import { GameEvent } from "./interfaces/GameEvent";
-import { Display } from "./interfaces/Display";
-import { AudioQuality } from "./enums/AudioQuality";
-import { EngineResponse } from "./interfaces/EngineResponse";
-import { EngineRequest } from "./interfaces/EngineRequest";
-import { PlayerProgressListener } from "./types/PlayerStatusListener";
-import { PlayerStatusListener } from "./types/PlayerProgressListener";
-import { PlayerDurationListener } from "./types/PlayerDurationListener";
-import { EventDispatcher } from "./utils/EventDispatcher";
-import { UtteranceButton } from "./interfaces/UtteranceButton";
-import { PlaybackStatus } from "./enums/PlaybackStatus";
+import { EventDispatcher } from "./EventDispatcher";
 import { JSDOM } from "jsdom";
+import {
+  PlayerDurationListener,
+  PlayerProgressListener,
+  PlayerStatusListener,
+} from "./types";
+import {
+  Display,
+  EngineRequest,
+  EngineResponse,
+  GameEvent,
+  UtteranceButton,
+} from "./interfaces";
+import { AudioQuality, PlaybackStatus } from "./enums";
 
 const { window } = new JSDOM();
 
