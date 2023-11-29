@@ -19,6 +19,6 @@
     },
     "lib": ["esnext", "scripthost"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"],
-  "exclude": ["node_modules", "src/**/*.tsx", "src/**/*.vue", "tests/**/*.tsx"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
