@@ -5,8 +5,6 @@ on:
 jobs:
   Prepare:
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.set_version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
@@ -14,8 +12,6 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@wanderword'
-      - name: Install dependencies
-        run: yarn
       - name: Set version
         id: set_version
         run: |
@@ -30,20 +26,6 @@ jobs:
             exit 1
           fi
           echo "version=$VERSION" >> $GITHUB_ENV
-          echo "::set-output name=version::$VERSION"
-          npm version $VERSION --no-git-tag-version
-      - name: Update .gitignore and commit changes
-        run: |
-          echo "Setting git config"
-          git config --global user.email "dev@wanderword.net"
-          git config --global user.name "Automated Release"
-          echo "Modifying .gitignore as needed"
-          sed -i '/\/dist/d' .gitignore
-          echo "/src" >> .gitignore
-          echo "/.github" >> .gitignore
-          git add .gitignore
-          git commit -m "Update .gitignore to exclude src and .github"
-
   Build:
     needs: Prepare
     runs-on: ubuntu-latest
@@ -54,20 +36,30 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@wanderword'
+      - uses: ./.github/actions/git-setup
+      - name: Set version
+        run: npm version ${{ env.version }} --no-git-tag-version
       - name: Install dependencies
         run: yarn
       - name: Building package
         run: yarn build
+      - name: Update .gitignore and commit changes
+        run: |
+          echo "Modifying .gitignore as needed"
+          sed -i '/\/dist/d' .gitignore
+          echo "/src" >> .gitignore
+          echo "/.github" >> .gitignore
+          git add .gitignore
+          git commit -m "Update .gitignore to exclude src and .github"
       - name: Create new branch
         run: |
           echo "Setting git config"
           git config --global user.email "dev@wanderword.net"
           git config --global user.name "Automated Release"
           echo "Creating new branch"
-          VERSION=${{ needs.Prepare.outputs.version }}
-          git switch -c publish/v$VERSION
+          git switch -c publish/v${{ env.version }}
           git add .
-          git commit -m "Publish package version: v$VERSION"
+          git commit -m "Publish package version: v${{ env.version }}"
       - name: Generate Changelog
         run: |
           npx auto-changelog --output CHANGELOG.md --tag-prefix '' --template keepachangelog
@@ -75,8 +67,7 @@ jobs:
           git commit -m "Update CHANGELOG.md"
       - name: Push changes
         run: |
-          git push --set-upstream origin "publish/v${{ needs.Prepare.outputs.version }}"
-
+          git push --set-upstream origin "publish/v${{ env.version }}"
   Publish:
     needs: Build
     runs-on: ubuntu-latest
@@ -86,9 +77,12 @@ jobs:
         with:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@wanderword' 
-      - name: Install dependencies
-        run: yarn
+          scope: '@wanderword'
+      - uses: ./.github/actions/git-setup
+      - name: Pull publish repository
+        run: |
+          git fetch
+          git checkout publish/v${{ env.version }}
       - name: Run Security Checks
         run: yarn audit
       - name: Dry Run Publish
