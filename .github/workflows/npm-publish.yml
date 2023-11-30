@@ -36,7 +36,7 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@wanderword'
-      - uses: ./.github/actions/git-setup
+      - uses: ./.github/actions/git-setup.yml
       - name: Set version
         run: npm version ${{ env.version }} --no-git-tag-version
       - name: Install dependencies
@@ -78,7 +78,7 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@wanderword'
-      - uses: ./.github/actions/git-setup
+      - uses: ./.github/actions/git-setup.yml
       - name: Pull publish repository
         run: |
           git fetch
