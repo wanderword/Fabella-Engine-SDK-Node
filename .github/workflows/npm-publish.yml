@@ -3,17 +3,21 @@ on:
   release:
     types: [published]
 jobs:
-  build:
+  Prepare:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set_version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@wanderword' 
-      - run: yarn
-      - name: Update package.json version
+          scope: '@wanderword'
+      - name: Install dependencies
+        run: yarn
+      - name: Set version
+        id: set_version
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/}
           echo "Current tag: $TAG_NAME"
@@ -25,8 +29,67 @@ jobs:
             echo "Tag name $TAG_NAME does not conform to SemVer (vMAJOR.MINOR.PATCH)"
             exit 1
           fi
-          echo "Setting package version to $VERSION"
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "::set-output name=version::$VERSION"
           npm version $VERSION --no-git-tag-version
-      - run: yarn publish
+      - name: Update .gitignore and commit changes
+        run: |
+          echo "Setting git config"
+          git config --global user.email "dev@wanderword.net"
+          git config --global user.name "Automated Release"
+          echo "Modifying .gitignore as needed"
+          sed -i '/\/dist/d' .gitignore
+          echo "/src" >> .gitignore
+          echo "/.github" >> .gitignore
+          git add .gitignore
+          git commit -m "Update .gitignore to exclude src and .github"
+
+  Build:
+    needs: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@wanderword'
+      - name: Install dependencies
+        run: yarn
+      - name: Building package
+        run: yarn build
+      - name: Create new branch
+        run: |
+          VERSION=${{ needs.Prepare.outputs.version }}
+          git switch -c publish/v$VERSION
+          git add .
+          git commit -m "Publish package version: v$VERSION"
+      - name: Generate Changelog
+        run: |
+          npx auto-changelog --output CHANGELOG.md --tag-prefix '' --template keepachangelog
+          git add CHANGELOG.md
+          git commit -m "Update CHANGELOG.md"
+      - name: Push changes
+        run: |
+          git push --set-upstream origin publish/v$VERSION
+
+  Publish:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@wanderword' 
+      - name: Install dependencies
+        run: yarn
+      - name: Run Security Checks
+        run: yarn audit
+      - name: Dry Run Publish
+        run: yarn publish --dry-run
+      - name: Publish package
+        run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
