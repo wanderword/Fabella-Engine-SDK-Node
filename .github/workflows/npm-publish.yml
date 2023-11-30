@@ -75,7 +75,7 @@ jobs:
           git commit -m "Update CHANGELOG.md"
       - name: Push changes
         run: |
-          git push --set-upstream origin publish/v$VERSION
+          git push --set-upstream origin "publish/v${{ needs.Prepare.outputs.version }}"
 
   Publish:
     needs: Build
