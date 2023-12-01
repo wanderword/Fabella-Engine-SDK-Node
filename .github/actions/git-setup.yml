@@ -1,0 +1,10 @@
+name: 'Git setup and authentication'
+description: 'Reusable step to setup and authenticate git for jobs.'
+runs:
+  using: "composite"
+  steps: 
+    - name: Configure Git Authentication
+      run: |
+        git config --global user.email "your-email@example.com"
+        git config --global user.name "Your Name"
+        git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${{ secrets.REPO_ACCESS_TOKEN }} | base64)"
