@@ -1,7 +1,7 @@
 {
   "name": "fabella-engine-api-sdk",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "exports": {
     ".": {
       "import": "./dist/index.js",
