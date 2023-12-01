@@ -60,6 +60,10 @@ jobs:
         run: yarn build
       - name: Create new branch
         run: |
+          echo "Setting git config"
+          git config --global user.email "dev@wanderword.net"
+          git config --global user.name "Automated Release"
+          echo "Creating new branch"
           VERSION=${{ needs.Prepare.outputs.version }}
           git switch -c publish/v$VERSION
           git add .
