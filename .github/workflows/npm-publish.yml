@@ -37,6 +37,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@wanderword'
       - uses: ./.github/actions/git-setup
+        with:
+          repo_access_token: ${{ secrets.REPO_ACCESS_TOKEN }}
       - name: Set version
         run: npm version ${{ env.version }} --no-git-tag-version
       - name: Install dependencies
@@ -53,18 +55,10 @@ jobs:
           git commit -m "Update .gitignore to exclude src and .github"
       - name: Create new branch
         run: |
-          echo "Setting git config"
-          git config --global user.email "dev@wanderword.net"
-          git config --global user.name "Automated Release"
           echo "Creating new branch"
           git switch -c publish/v${{ env.version }}
           git add .
           git commit -m "Publish package version: v${{ env.version }}"
-      - name: Generate Changelog
-        run: |
-          npx auto-changelog --output CHANGELOG.md --tag-prefix '' --template keepachangelog
-          git add CHANGELOG.md
-          git commit -m "Update CHANGELOG.md"
       - name: Push changes
         run: |
           git push --set-upstream origin "publish/v${{ env.version }}"
@@ -79,6 +73,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@wanderword'
       - uses: ./.github/actions/git-setup
+        with:
+          repo_access_token: ${{ secrets.REPO_ACCESS_TOKEN }}
       - name: Pull publish repository
         run: |
           git fetch
