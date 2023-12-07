@@ -3,7 +3,7 @@ on:
   release:
     types: [published]
 jobs:
-  Prepare:
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -12,8 +12,14 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@wanderword'
-      - name: Set version
-        id: set_version
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Build package
+        run: yarn build
+
+      - name: Update package.json version
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/}
           echo "Current tag: $TAG_NAME"
@@ -25,64 +31,9 @@ jobs:
             echo "Tag name $TAG_NAME does not conform to SemVer (vMAJOR.MINOR.PATCH)"
             exit 1
           fi
-          echo "version=$VERSION" >> $GITHUB_ENV
-  Build:
-    needs: Prepare
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16.x'
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@wanderword'
-      - uses: ./.github/actions/git-setup
-        with:
-          repo_access_token: ${{ secrets.REPO_ACCESS_TOKEN }}
-      - name: Set version
-        run: npm version ${{ env.version }} --no-git-tag-version
-      - name: Install dependencies
-        run: yarn
-      - name: Building package
-        run: yarn build
-      - name: Update .gitignore and commit changes
-        run: |
-          echo "Modifying .gitignore as needed"
-          sed -i '/\/dist/d' .gitignore
-          echo "/src" >> .gitignore
-          echo "/.github" >> .gitignore
-          git add .gitignore
-          git commit -m "Update .gitignore to exclude src and .github"
-      - name: Create new branch
-        run: |
-          echo "Creating new branch"
-          git switch -c publish/v${{ env.version }}
-          git add .
-          git commit -m "Publish package version: v${{ env.version }}"
-      - name: Push changes
-        run: |
-          git push --set-upstream origin "publish/v${{ env.version }}"
-  Publish:
-    needs: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16.x'
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@wanderword'
-      - uses: ./.github/actions/git-setup
-        with:
-          repo_access_token: ${{ secrets.REPO_ACCESS_TOKEN }}
-      - name: Pull publish repository
-        run: |
-          git fetch
-          git checkout publish/v${{ env.version }}
-      - name: Run Security Checks
-        run: yarn audit
-      - name: Dry Run Publish
-        run: yarn publish --dry-run
+          echo "Setting package version to $VERSION"
+          npm version $VERSION --no-git-tag-version
+
       - name: Publish package
         run: yarn publish
         env:

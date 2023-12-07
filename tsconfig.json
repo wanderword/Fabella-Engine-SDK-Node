@@ -4,12 +4,9 @@
     "module": "esnext",
     "strict": true,
     "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "useDefineForClassFields": true,
     "sourceMap": true,
     "baseUrl": ".",
     "outDir": "./dist",
@@ -17,7 +14,8 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "lib": ["esnext", "scripthost"]
+    "lib": ["esnext"],
+    "declaration": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
